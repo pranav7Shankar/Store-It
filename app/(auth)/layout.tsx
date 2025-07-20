@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             alt="files"
             height={342}
             width={342}
-            className={"hover: scale-105 transition-all hover:rotate-2"}
+            className={"transition-all hover:rotate-2 hover:scale-105"}
           />
         </div>
       </section>
@@ -55,4 +55,5 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     </div>
   );
 };
+
 export default Layout;
