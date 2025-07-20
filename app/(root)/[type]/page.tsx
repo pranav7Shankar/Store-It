@@ -12,13 +12,30 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
 
   const types = getFileTypesParams(type) as FileType[];
   const files = await getFiles({ types, searchText, sort });
+  const totalSizeBytes = files.documents.reduce(
+    (total: number, file: Models.Document) => {
+      return total + (file.size || 0);
+    },
+    0,
+  );
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 B";
+
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+  const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+  const totalSizeFormatted = formatFileSize(totalSizeBytes);
   return (
     <div className={"page-container"}>
       <section className={"w-full"}>
         <h1 className={"h1 capitalize"}>{type}</h1>
         <div className={"total-size-section"}>
           <p className={"body-1"}>
-            Total: <span className={"h5"}>0 MB</span>
+            Total: <span className={"h5"}>{totalSizeFormatted}</span>
           </p>
           <div className={"sort-container"}>
             <p className={"body-1 hidden text-light-200 sm:block"}>Sort By:</p>
