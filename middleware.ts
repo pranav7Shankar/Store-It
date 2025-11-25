@@ -1,26 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const PUBLIC_PATHS = ["/sign-in", "/sign-up"];
+
 export function middleware(request: NextRequest) {
   const session = request.cookies.get("appwrite-session");
+  const path = request.nextUrl.pathname;
 
-  // If no session and not already on sign-in page, redirect
-  if (!session && !request.nextUrl.pathname.startsWith("/sign-in")) {
+  // Check if route is public
+  const isPublic =
+    PUBLIC_PATHS.some((p) => path.startsWith(p)) ||
+    path.startsWith("/_next") ||
+    path.startsWith("/api") ||
+    path.includes("."); // static files
+
+  // If user is not authenticated and trying to access a protected route → redirect
+  if (!session && !isPublic) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   return NextResponse.next();
 }
 
+// Only match routes in the app (everything except static files)
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - sign-in (sign-in page itself)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|sign-in|.*\\.).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
